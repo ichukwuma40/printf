@@ -1,4 +1,5 @@
 #include "main.h"
+
 /**
  * handle_print - Prints an argument based on its type
  * @fmt: Formatted string in which to print the arguments.
@@ -25,6 +26,7 @@ fmt_t fmt_types[] = {
 for (i = 0; fmt_types[i].fmt != '\0'; i++)
 if (fmt[*ind] == fmt_types[i].fmt)
 return (fmt_types[i].fn(list, buffer, flags, width, precision, size));
+
 
 if (fmt_types[i].fmt == '\0')
 {
