@@ -1,73 +1,69 @@
 #include "main.h"
-#include <stdarg.h>
-
-int _printf(const char *format, ...);
 
 /**
- * _printf - prints a formated string to output stream
- *  @format: the format string
- *
- *  Return: number of characters printed, if not return (-1).
+ * print_buffer - Prints the contents of the buffer if they exist
+ * @buffer: Array of chars
+ * @buff_ind: The index at which to add the next char, represents the length
  */
+static void print_buffer(char buffer[], int *buff_ind)
+{
+if (*buff_ind > 0)
+{
+write(1, buffer, *buff_ind);
+*buff_ind = 0;
+}
+}
 
+/**
+ * _printf - Printf function
+ * @format: Format string containing the text to be printed and format specifiers
+ *
+ * Return: Number of characters printed
+ */
 int _printf(const char *format, ...)
 {
-    int i = 0, y = 0, num;
-    char buffer[1024];
-    va_list arguments;
+int i, printed = 0, printed_chars = 0;
+int flags, width, precision, size, buff_ind = 0;
+va_list list;
+char buffer[BUFF_SIZE];
 
-    if (format == NULL)
-        return (-1);
+if (format == NULL)
+return (-1);
 
-    va_start(argarguments, format);
+va_start(list, format);
 
-    while (format[i] != '\0')
-    {
-        if (format[i] == '%')
-        {
-            i++;
-            switch (format[i])
-            {
-                case 'c':
-                    y += _putchar(va_arg(arguments, int));
-                    break;
-                case '%':
-                    y += _putchar('%');
-                    break;
-                case 's':
-                   y += print(va_arg(arguments, char *));
-                    break;
-                case 'd':
-                    num = va_arg(arguments, int);
-                    if (num == 0)
-                    {
-                        y += _putchar('0');
-                        break;
-                    }
-                    i_to_str(buffer, num);
-                    y += print(buffer);
-                    break;
-                case 'i':
-                    num = va_arg(arguments, int);
-                    if (!num)
-                    {
-                        y += _putchar('0');
-                        break;
-                    }
-                    i_to_str(buffer, num);
-                    y += print(buffer);
-                    break;
-                default:
-                    y += _putchar(format[i]);
-                    break;
-            }
-        }
-        else
-        {
-            y += _putchar(format[i]);
-        }
-        i++;
-    }
-    va_end(arguments);
-    return (y);
+for (i = 0; format && format[i] != '\0'; i++)
+{
+if (format[i] != '%')
+{
+buffer[buff_ind++] = format[i];
+if (buff_ind == BUFF_SIZE)
+print_buffer(buffer, &buff_ind);
+printed_chars++;
+}
+else
+{
+print_buffer(buffer, &buff_ind);
+flags = get_flags(format, &i);
+width = get_width(format, &i, list);
+precision = get_precision(format, &i, list);
+size = get_size(format, &i);
+++i;
+printed = handle_print(format, &i, list, buffer,
+flags, width, precision, size);
+if (printed == -1)
+{
+va_end(list);
+return (-1);
+
+}
+printed_chars += printed;
+}
+}
+
+print_buffer(buffer, &buff_ind);
+
+va_end(list);
+
+return (printed_chars);
 }
